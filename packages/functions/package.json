@@ -1,11 +1,13 @@
 {
-  "name": "@status-application/functions",
-  "version": "0.0.0",
-  "dependencies": {
-    "@status-application/core": "*",
-    "sst": "3.4.32"
-  },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.137"
-  }
+    "name": "@status-application/functions",
+    "version": "0.0.0",
+    "dependencies": {
+        "@status-application/core": "*",
+        "hono": "^4.6.15",
+        "sst": "3.4.32",
+        "zod": "^3.24.1"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.137"
+    }
 }

@@ -1,19 +1,21 @@
 {
-  "name": "@status-application/core",
-  "version": "0.0.0",
-  "scripts": {
-    "test": "sst shell vitest"
-  },
-  "exports": {
-    "./*": [
-      "./src/*/index.ts",
-      "./src/*.ts"
-    ]
-  },
-  "dependencies": {
-    "sst": "3.4.32"
-  },
-  "devDependencies": {
-    "vitest": "^2.0.3"
-  }
+    "name": "@status-application/core",
+    "version": "0.0.0",
+    "scripts": {
+        "test": "sst shell vitest"
+    },
+    "exports": {
+        "./*": [
+            "./src/*.ts"
+        ]
+    },
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.716.0",
+        "@aws-sdk/lib-dynamodb": "^3.716.0",
+        "aws-sdk": "^2.1692.0",
+        "sst": "3.4.32"
+    },
+    "devDependencies": {
+        "vitest": "^2.0.3"
+    }
 }
