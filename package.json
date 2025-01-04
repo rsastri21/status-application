@@ -5,7 +5,8 @@
         "packages/*"
     ],
     "scripts": {
-        "dev": "npx sst dev"
+        "dev": "npx sst dev",
+        "deploy": "npx sst deploy"
     },
     "devDependencies": {
         "@tsconfig/node20": "^20.1.4",

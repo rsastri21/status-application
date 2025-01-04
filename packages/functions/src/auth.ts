@@ -9,7 +9,10 @@ import { jsonValidator } from "../utils/json-validator";
 import { User } from "@status-application/core/types";
 import { verifyPassword } from "@status-application/core/utils/password";
 import { generateSessionToken } from "@status-application/core/utils/auth";
-import { createSession } from "@status-application/core/queries/sessions";
+import {
+    createSession,
+    deleteSession,
+} from "@status-application/core/queries/sessions";
 
 const registerSchema = z.object({
     username: z.string().nonempty(),
@@ -80,6 +83,22 @@ app.post("/api/auth/sign-in", jsonValidator(signInSchema), async (c) => {
         return c.json({ message: "Sign-in unsuccessful." }, 400);
     } catch (error) {
         return c.json({ message: "Sign-in unsuccessful.", error }, 400);
+    }
+});
+
+app.post("/api/auth/sign-out", async (c) => {
+    const username = c.req.header("user");
+    const token = c.req.header("auth-token");
+
+    if (!username || !token) {
+        return c.json({ message: "User or token not provided." }, 400);
+    }
+
+    try {
+        await deleteSession(username, token);
+        return c.json({ message: "Signed-out successfully." });
+    } catch (error) {
+        return c.json({ message: "Sign-out failed.", error }, 400);
     }
 });
 

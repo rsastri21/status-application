@@ -10,6 +10,10 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "ApiAuthorizerRequestAuthorizerFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "SessionTable": {
       "name": string
       "type": "sst.aws.Dynamo"
