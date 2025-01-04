@@ -1,7 +1,10 @@
 import {
     deleteSession,
     getSession,
+    SESSION_EXPIRY_TIME,
+    updateSession,
 } from "@status-application/core/queries/sessions";
+import { Session } from "@status-application/core/types";
 import { Handler } from "aws-lambda";
 
 const unauthorized = {
@@ -30,12 +33,19 @@ const validateRequest = async (
             return { isAuthorized: false };
         }
 
-        const session = sessionResponse.Item;
+        const session = sessionResponse.Item as Session;
 
         /**
          * Check that the session is valid and delete it if not.
+         * Refresh the session expiry time if halfway through.
          */
         if (session.expiresAt > Date.now()) {
+            if (Date.now() >= session.expiresAt - SESSION_EXPIRY_TIME / 2) {
+                await updateSession({
+                    ...session,
+                    expiresAt: Date.now() + SESSION_EXPIRY_TIME,
+                });
+            }
             return { isAuthorized: true };
         }
         await deleteSession(user, authToken);
