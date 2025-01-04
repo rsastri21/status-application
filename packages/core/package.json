@@ -12,6 +12,8 @@
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.716.0",
         "@aws-sdk/lib-dynamodb": "^3.716.0",
+        "@oslojs/crypto": "^1.0.1",
+        "@oslojs/encoding": "^1.1.0",
         "aws-sdk": "^2.1692.0",
         "sst": "3.4.32"
     },

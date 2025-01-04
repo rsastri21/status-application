@@ -21,3 +21,12 @@ export async function hashPassword(plainTextPassword: string, salt: string) {
         );
     });
 }
+
+export async function verifyPassword(
+    plainTextPassword: string,
+    salt: string,
+    password: string
+) {
+    const hash = await hashPassword(plainTextPassword, salt);
+    return hash === password;
+}

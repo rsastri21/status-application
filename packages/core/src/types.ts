@@ -11,3 +11,10 @@ export type User = {
     salt: string;
     createdAt: number;
 };
+
+export type Session = {
+    username: string;
+    sessionId: string;
+    createdAt: number;
+    expiresAt: number;
+};

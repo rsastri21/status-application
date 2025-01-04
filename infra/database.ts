@@ -16,4 +16,5 @@ export const sessions = new sst.aws.Dynamo("SessionTable", {
         hashKey: "username",
         rangeKey: "sessionId",
     },
+    ttl: "expiresAt",
 });
