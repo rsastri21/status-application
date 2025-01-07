@@ -35,3 +35,16 @@ api.route(
         },
     }
 );
+
+api.route(
+    "ANY /api/user/{proxy+}",
+    {
+        link: [users],
+        handler: "packages/functions/src/user.handler",
+    },
+    {
+        auth: {
+            lambda: lambdaAuthorizer.id,
+        },
+    }
+);
