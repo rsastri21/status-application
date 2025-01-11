@@ -1,7 +1,7 @@
 import { Resource } from "sst";
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDbProvider } from "../utils/dynamo-client";
-import { User } from "../types";
+import { User, UserUpdate } from "../types";
 import { getSalt, hashPassword } from "../utils/password";
 
 export const getUserByUsername = async (username: string) => {
@@ -45,6 +45,18 @@ export const createUser = async (
         TableName: Resource.UserTable.name,
         Item: user,
         ConditionExpression: "attribute_not_exists(username)",
+    });
+
+    const response = await client.send(command);
+    return response;
+};
+
+export const updateUser = async (updatedUser: UserUpdate) => {
+    const client = DynamoDbProvider.getInstance();
+
+    const command = new PutCommand({
+        TableName: Resource.UserTable.name,
+        Item: updatedUser,
     });
 
     const response = await client.send(command);

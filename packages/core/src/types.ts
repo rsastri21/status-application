@@ -12,6 +12,8 @@ export type User = {
     createdAt: number;
 };
 
+export type UserUpdate = Partial<User> & Pick<Required<User>, "username">;
+
 export type Session = {
     username: string;
     sessionId: string;
