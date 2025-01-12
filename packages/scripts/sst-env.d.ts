@@ -14,13 +14,17 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Images": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "Router": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "SessionTable": {
       "name": string
       "type": "sst.aws.Dynamo"
-    }
-    "Uploads": {
-      "name": string
-      "type": "sst.aws.Bucket"
     }
     "UserTable": {
       "name": string
