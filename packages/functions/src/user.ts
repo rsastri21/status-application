@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { handle } from "hono/aws-lambda";
 import { z } from "zod";
 import { jsonValidator } from "../utils/json-validator";
+import { generateUploadPresignedUrl } from "../utils/presigned-url";
 
 const updateUserSchema = z.object({
     username: z.string().nonempty(),
@@ -19,6 +20,11 @@ const updateUserSchema = z.object({
             height: z.number().optional(),
         })
         .optional(),
+});
+
+const profilePictureSchema = z.object({
+    width: z.number().nonnegative(),
+    height: z.number().nonnegative(),
 });
 
 const app = new Hono();
@@ -101,6 +107,27 @@ app.post(
             return c.json({ message: "Unsuccessful update." }, 400);
         } catch (error) {
             return c.json({ message: "Unsuccessful update.", error }, 400);
+        }
+    }
+);
+
+app.post(
+    "/api/user/profile/picture",
+    jsonValidator(profilePictureSchema),
+    async (c) => {
+        const params = c.req.valid("json");
+        const username = c.req.header("user");
+        const key = `images/${username}/profile/picture`;
+
+        try {
+            const url = await generateUploadPresignedUrl(
+                key,
+                params.width,
+                params.height
+            );
+            return c.json({ url }, 200);
+        } catch (error) {
+            return c.json({ message: "Could not generate URL.", error }, 400);
         }
     }
 );

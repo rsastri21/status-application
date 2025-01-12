@@ -1,4 +1,5 @@
 import { users, sessions } from "./database";
+import { bucket } from "./storage";
 
 export const api = new sst.aws.ApiGatewayV2("Api");
 
@@ -39,7 +40,7 @@ api.route(
 api.route(
     "ANY /api/user/{proxy+}",
     {
-        link: [users],
+        link: [users, bucket],
         handler: "packages/functions/src/user.handler",
     },
     {
