@@ -11,7 +11,7 @@ bucket.notify({
             name: "PostProcessing",
             function: {
                 handler: "packages/functions/src/post-processing.handler",
-                link: [users],
+                link: [users, bucket],
             },
             events: ["s3:ObjectCreated:*"],
         },
