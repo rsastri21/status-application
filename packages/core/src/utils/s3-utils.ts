@@ -1,6 +1,7 @@
 import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { S3ClientProvider } from "./s3-client";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { HEIGHT_METADATA_HEADER, WIDTH_METADATA_HEADER } from "./constants";
 
 export const getUploadPresignedUrl = (
     bucket: string,
@@ -13,8 +14,8 @@ export const getUploadPresignedUrl = (
         Bucket: bucket,
         Key: key,
         Metadata: {
-            "x-amz-meta-width": String(width),
-            "x-amz-meta-height": String(height),
+            [WIDTH_METADATA_HEADER]: String(width),
+            [HEIGHT_METADATA_HEADER]: String(height),
         },
     });
     return getSignedUrl(client, command, { expiresIn: 300 });
