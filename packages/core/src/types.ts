@@ -18,6 +18,7 @@ export type Relationship = {
     username: string;
     friend: string;
     isPending: boolean;
+    requester: string;
     createdAt: number;
 };
 
