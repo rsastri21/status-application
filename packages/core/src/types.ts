@@ -14,6 +14,13 @@ export type User = {
 
 export type UserUpdate = Partial<User> & Pick<Required<User>, "username">;
 
+export type Relationship = {
+    username: string;
+    friend: string;
+    isPending: boolean;
+    createdAt: number;
+};
+
 export type Session = {
     username: string;
     sessionId: string;

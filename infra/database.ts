@@ -18,3 +18,14 @@ export const sessions = new sst.aws.Dynamo("SessionTable", {
     },
     ttl: "expiresAt",
 });
+
+export const relationships = new sst.aws.Dynamo("RelationshipTable", {
+    fields: {
+        username: "string",
+        friend: "string",
+    },
+    primaryIndex: {
+        hashKey: "username",
+        rangeKey: "friend",
+    },
+});
