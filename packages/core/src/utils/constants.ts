@@ -1,2 +1,2 @@
-export const WIDTH_METADATA_HEADER = "x-amz-meta-width";
-export const HEIGHT_METADATA_HEADER = "x-amz-meta-height";
+export const WIDTH_METADATA_HEADER = "width";
+export const HEIGHT_METADATA_HEADER = "height";
