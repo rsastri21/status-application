@@ -53,7 +53,7 @@ api.route(
 api.route(
     "ANY /api/relationships/{proxy+}",
     {
-        link: [relationships],
+        link: [relationships, users],
         handler: "packages/functions/src/relationships.handler",
     },
     {
