@@ -8,6 +8,7 @@ import {
     getFriends,
     getReceivedFriendRequests,
     getSentFriendRequests,
+    removeFriend,
 } from "@status-application/core/queries/friends";
 import { QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { BlankEnv, BlankInput } from "hono/types";
@@ -163,6 +164,25 @@ app.post(
             }
         } catch (error) {
             return c.json({ message: "Failed to engage request.", error }, 400);
+        }
+    }
+);
+
+app.post(
+    "/api/relationships/friends/remove",
+    jsonValidator(friendRequestSchema),
+    async (c) => {
+        const params = c.req.valid("json");
+        const username = c.req.header("user");
+
+        try {
+            const response = await removeFriend(username!, params.friend);
+
+            if (response.$metadata.httpStatusCode === 200) {
+                return c.json({ message: "Friend successfully removed." }, 200);
+            }
+        } catch (error) {
+            return c.json({ message: "Failed to remove friend.", error }, 400);
         }
     }
 );

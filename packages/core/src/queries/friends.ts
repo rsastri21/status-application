@@ -150,3 +150,12 @@ export const getFriendRequest = async (username: string, friend: string) => {
     const response = await client.send(command);
     return response;
 };
+
+export const removeFriend = async (username: string, friend: string) => {
+    const client = DynamoDbProvider.getInstance();
+    const params = generateDeleteParams(username, friend);
+
+    const command = new TransactWriteCommand(params);
+    const response = await client.send(command);
+    return response;
+};
