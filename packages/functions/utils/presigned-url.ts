@@ -16,3 +16,32 @@ export const generateUploadPresignedUrl = async (
     });
     return url;
 };
+
+export const generatePostPresignedUrls = async (
+    keyPrefix: string,
+    postId: string,
+    primary: { width: number; height: number },
+    secondary: { width: number; height: number }
+) => {
+    const primaryUrl = await getUploadPresignedUrl(
+        Resource.Images.name,
+        `${keyPrefix}/${postId}/primary`,
+        {
+            [WIDTH_METADATA_HEADER]: String(primary.width),
+            [HEIGHT_METADATA_HEADER]: String(primary.height),
+            postId,
+        }
+    );
+
+    const secondaryUrl = await getUploadPresignedUrl(
+        Resource.Images.name,
+        `${keyPrefix}/${postId}/secondary`,
+        {
+            [WIDTH_METADATA_HEADER]: String(secondary.width),
+            [HEIGHT_METADATA_HEADER]: String(primary.height),
+            postId,
+        }
+    );
+
+    return [primaryUrl, secondaryUrl] as const;
+};
