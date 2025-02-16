@@ -76,7 +76,7 @@ export const attachImageToPost = async (
     username: string,
     postId: string,
     image: Image,
-    type: "primary" | "secondary"
+    type: "primaryImage" | "secondaryImage"
 ) => {
     const client = DynamoDbProvider.getInstance();
 

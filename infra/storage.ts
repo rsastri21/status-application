@@ -1,4 +1,4 @@
-import { users } from "./database";
+import { posts, users } from "./database";
 
 // Create an S3 bucket
 export const bucket = new sst.aws.Bucket("Images", {
@@ -19,7 +19,7 @@ bucket.notify({
             name: "PostProcessing",
             function: {
                 handler: "packages/functions/src/post-processing.handler",
-                link: [users, bucket, router],
+                link: [users, posts, bucket, router],
             },
             events: ["s3:ObjectCreated:*"],
         },

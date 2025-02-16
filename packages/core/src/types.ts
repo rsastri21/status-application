@@ -35,8 +35,8 @@ export type Comment = {
 export type Post = {
     username: string;
     postId: string;
-    primary?: Image;
-    secondary?: Image;
+    primaryImage?: Image;
+    secondaryImage?: Image;
     caption: string;
     likes: number;
     reactions: Reaction[];
