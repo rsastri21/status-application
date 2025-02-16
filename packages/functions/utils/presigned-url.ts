@@ -23,7 +23,7 @@ export const generatePostPresignedUrls = async (
     primary: { width: number; height: number },
     secondary: { width: number; height: number }
 ) => {
-    const primaryUrl = await getUploadPresignedUrl(
+    const primaryUrl = getUploadPresignedUrl(
         Resource.Images.name,
         `${keyPrefix}/${postId}/primary`,
         {
@@ -33,7 +33,7 @@ export const generatePostPresignedUrls = async (
         }
     );
 
-    const secondaryUrl = await getUploadPresignedUrl(
+    const secondaryUrl = getUploadPresignedUrl(
         Resource.Images.name,
         `${keyPrefix}/${postId}/secondary`,
         {
@@ -43,5 +43,5 @@ export const generatePostPresignedUrls = async (
         }
     );
 
-    return [primaryUrl, secondaryUrl] as const;
+    return await Promise.all([primaryUrl, secondaryUrl] as const);
 };

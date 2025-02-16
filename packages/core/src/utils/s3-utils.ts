@@ -12,6 +12,7 @@ export const getUploadPresignedUrl = (
         Bucket: bucket,
         Key: key,
         Metadata: metadata,
+        ContentType: "image/jpeg",
     });
     return getSignedUrl(client, command, { expiresIn: 300 });
 };

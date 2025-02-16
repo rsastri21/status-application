@@ -29,3 +29,14 @@ export const relationships = new sst.aws.Dynamo("RelationshipTable", {
         rangeKey: "friend",
     },
 });
+
+export const posts = new sst.aws.Dynamo("PostTable", {
+    fields: {
+        username: "string",
+        postId: "string",
+    },
+    primaryIndex: {
+        hashKey: "username",
+        rangeKey: "postId",
+    },
+});

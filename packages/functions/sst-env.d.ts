@@ -18,6 +18,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "PostTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "RelationshipTable": {
       "name": string
       "type": "sst.aws.Dynamo"

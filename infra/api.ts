@@ -1,4 +1,4 @@
-import { users, sessions, relationships } from "./database";
+import { users, sessions, relationships, posts } from "./database";
 import { bucket } from "./storage";
 
 export const api = new sst.aws.ApiGatewayV2("Api");
@@ -55,6 +55,19 @@ api.route(
     {
         link: [relationships, users],
         handler: "packages/functions/src/relationships.handler",
+    },
+    {
+        auth: {
+            lambda: lambdaAuthorizer.id,
+        },
+    }
+);
+
+api.route(
+    "ANY /api/posts/{proxy+}",
+    {
+        link: [posts, bucket],
+        handler: "packages/functions/src/posts.handler",
     },
     {
         auth: {
