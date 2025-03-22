@@ -47,7 +47,9 @@ app.get("/api/user/profile", async (c) => {
             if (!response.Item) {
                 return c.json({ message: "User not found." }, 404);
             }
-            return c.json(response.Item as User, 200);
+            const user = response.Item as User;
+            const { salt, password, ...rest } = user;
+            return c.json(rest, 200);
         } catch (error) {
             return c.json({ message: "Error retrieving user.", error }, 400);
         }
@@ -64,7 +66,9 @@ app.get("/api/user/profile", async (c) => {
              */
             return c.json({ message: "User not found." }, 404);
         }
-        return c.json(response.Item as User, 200);
+        const userObj = response.Item as User;
+        const { salt, password, ...rest } = userObj;
+        return c.json(rest, 200);
     } catch (error) {
         return c.json({ message: "Error retrieving user.", error }, 400);
     }
