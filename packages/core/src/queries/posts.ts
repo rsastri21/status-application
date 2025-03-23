@@ -9,6 +9,7 @@ import {
 import { Image, Post } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
+import { updateDdbItem } from "../utils/ddb-utils";
 
 export const getPostById = async (username: string, postId: string) => {
     const client = DynamoDbProvider.getInstance();
@@ -78,21 +79,21 @@ export const attachImageToPost = async (
     image: Image,
     type: "primaryImage" | "secondaryImage"
 ) => {
-    const client = DynamoDbProvider.getInstance();
+    return await updateDdbItem<Post, { username: string; postId: string }>(
+        Resource.PostTable.name,
+        { username, postId },
+        { [type]: image }
+    );
+};
 
-    const params: UpdateCommandInput = {
-        TableName: Resource.PostTable.name,
-        Key: {
-            username: username,
-            postId: postId,
-        },
-        UpdateExpression: `SET ${type} = :imageVal`,
-        ExpressionAttributeValues: {
-            ":imageVal": image,
-        },
-    };
-
-    const command = new UpdateCommand(params);
-    const response = await client.send(command);
-    return response;
+export const captionPost = async (
+    username: string,
+    postId: string,
+    caption: string
+) => {
+    return await updateDdbItem<Post, { username: string; postId: string }>(
+        Resource.PostTable.name,
+        { username, postId },
+        { caption }
+    );
 };
