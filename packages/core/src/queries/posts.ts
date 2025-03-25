@@ -3,13 +3,13 @@ import {
     PutCommand,
     QueryCommand,
     QueryCommandInput,
-    UpdateCommand,
-    UpdateCommandInput,
 } from "@aws-sdk/lib-dynamodb";
 import { Image, Post } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
-import { updateDdbItem } from "../utils/ddb-utils";
+import { deleteDdbItem, updateDdbItem } from "../utils/ddb-utils";
+
+type PostKey = { username: string; postId: string };
 
 export const getPostById = async (username: string, postId: string) => {
     const client = DynamoDbProvider.getInstance();
@@ -79,7 +79,7 @@ export const attachImageToPost = async (
     image: Image,
     type: "primaryImage" | "secondaryImage"
 ) => {
-    return await updateDdbItem<Post, { username: string; postId: string }>(
+    return await updateDdbItem<Post, PostKey>(
         Resource.PostTable.name,
         { username, postId },
         { [type]: image }
@@ -91,9 +91,19 @@ export const captionPost = async (
     postId: string,
     caption: string
 ) => {
-    return await updateDdbItem<Post, { username: string; postId: string }>(
+    return await updateDdbItem<Post, PostKey>(
         Resource.PostTable.name,
         { username, postId },
         { caption }
     );
+};
+
+export const deletePost = async (username: string, postId: string) => {
+    /**
+     * TODO: Cleanup s3 images as well
+     */
+    return await deleteDdbItem<PostKey>(Resource.PostTable.name, {
+        username,
+        postId,
+    });
 };

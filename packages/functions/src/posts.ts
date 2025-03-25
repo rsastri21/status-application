@@ -3,6 +3,7 @@ import { handle } from "hono/aws-lambda";
 import { z } from "zod";
 import { jsonValidator } from "../utils/json-validator";
 import {
+    captionPost,
     createEmptyPost,
     getPostsForUserWithinRange,
 } from "@status-application/core/queries/posts";
@@ -14,6 +15,11 @@ import { tryCatch } from "@status-application/core/utils/try-catch";
 const postSchema = z.object({
     width: z.number().nonnegative(),
     height: z.number().nonnegative(),
+});
+
+const captionSchema = z.object({
+    postId: z.string(),
+    caption: z.string(),
 });
 
 const app = new Hono();
@@ -87,6 +93,27 @@ app.post("/api/posts/new", jsonValidator(postSchema), async (c) => {
 
     const [primaryUrl, secondaryUrl] = s3Response;
     return c.json({ primary: primaryUrl, secondary: secondaryUrl }, 200);
+});
+
+app.post("/api/posts/caption", jsonValidator(captionSchema), async (c) => {
+    const params = c.req.valid("json");
+    const username = c.req.header("user")!;
+
+    const { data, error } = await tryCatch(
+        captionPost(username, params.postId as string, params.caption as string)
+    );
+
+    if (error) {
+        return c.json({ message: "Failed to caption post.", error }, 400);
+    }
+
+    if (data.$metadata.httpStatusCode !== 200) {
+        return c.json({ message: "Could not caption post." }, 400);
+    }
+    return c.json(
+        { message: "Post captioned successfully.", post: data.Attributes },
+        200
+    );
 });
 
 export const handler = handle(app);

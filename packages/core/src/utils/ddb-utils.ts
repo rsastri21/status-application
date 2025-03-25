@@ -1,4 +1,6 @@
 import {
+    DeleteCommand,
+    DeleteCommandInput,
     UpdateCommand,
     UpdateCommandInput,
     UpdateCommandOutput,
@@ -37,6 +39,22 @@ export const updateDdbItem = async <T, K extends Record<string, any>>(
 
     const client = DynamoDbProvider.getInstance();
     const command = new UpdateCommand(params);
+
+    const response = await client.send(command);
+    return response;
+};
+
+export const deleteDdbItem = async <K extends Record<string, any>>(
+    tableName: string,
+    key: K
+) => {
+    const params: DeleteCommandInput = {
+        TableName: tableName,
+        Key: key,
+    };
+
+    const client = DynamoDbProvider.getInstance();
+    const command = new DeleteCommand(params);
 
     const response = await client.send(command);
     return response;
