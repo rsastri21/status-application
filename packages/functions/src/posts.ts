@@ -4,10 +4,12 @@ import { z } from "zod";
 import { jsonValidator } from "../utils/json-validator";
 import {
     captionPost,
+    commentPost,
     createEmptyPost,
     deletePost,
     getPostsForUserWithinRange,
     likePost,
+    replyToComment,
 } from "@status-application/core/queries/posts";
 import { generatePostPresignedUrls } from "../utils/presigned-url";
 import { getMidnightEpoch } from "../utils/get-midnight-date";
@@ -21,13 +23,26 @@ const postSchema = z.object({
 
 const captionSchema = z.object({
     postId: z.string(),
-    caption: z.string(),
+    caption: z.string().max(140),
 });
 
 const likeSchema = z.object({
     username: z.string(),
     postId: z.string(),
     type: z.enum(["like", "dislike"]),
+});
+
+const commentSchema = z.object({
+    username: z.string(),
+    postId: z.string(),
+    content: z.string().max(140),
+});
+
+const replySchema = z.object({
+    username: z.string(),
+    postId: z.string(),
+    content: z.string().max(140),
+    commentId: z.number().nonnegative(),
 });
 
 const app = new Hono();
@@ -136,6 +151,44 @@ app.post("/api/posts/like", jsonValidator(likeSchema), async (c) => {
     }
     return c.json(
         { message: "Successfully like post.", post: data.Attributes },
+        200
+    );
+});
+
+app.post("/api/posts/comment", jsonValidator(commentSchema), async (c) => {
+    const { username, postId, content } = c.req.valid("json") as z.infer<
+        typeof commentSchema
+    >;
+    const author = c.req.header("user")!;
+
+    const { data, error } = await tryCatch(
+        commentPost(username, postId, author, content)
+    );
+
+    if (error) {
+        return c.json({ message: "Failed to comment on post.", error }, 400);
+    }
+    return c.json(
+        { message: "Successfully commented on post.", post: data.Attributes },
+        200
+    );
+});
+
+app.post("/api/posts/comment/reply", jsonValidator(replySchema), async (c) => {
+    const { username, postId, content, commentId } = c.req.valid(
+        "json"
+    ) as z.infer<typeof replySchema>;
+    const author = c.req.header("user")!;
+
+    const { data, error } = await tryCatch(
+        replyToComment(username, postId, author, commentId, content)
+    );
+
+    if (error) {
+        return c.json({ message: "Failed to reply on post.", error }, 400);
+    }
+    return c.json(
+        { message: "Successfully replied on post.", post: data.Attributes },
         200
     );
 });

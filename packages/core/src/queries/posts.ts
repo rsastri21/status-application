@@ -4,7 +4,7 @@ import {
     QueryCommand,
     QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-import { Image, Post } from "../types";
+import { Comment, Image, Post, Reply } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
 import { deleteDdbItem, getDdbItem, updateDdbItem } from "../utils/ddb-utils";
@@ -12,6 +12,22 @@ import { deleteObject } from "../utils/s3-utils";
 import { tryCatch } from "../utils/try-catch";
 
 type PostKey = { username: string; postId: string };
+
+const getPost = async (username: string, postId: string) => {
+    const { data, error } = await tryCatch(
+        getDdbItem<PostKey>(Resource.PostTable.name, { username, postId })
+    );
+
+    if (error) {
+        throw new Error("Failed to get post.");
+    }
+
+    if (!data.Item) {
+        throw new Error("Post does not exist.");
+    }
+
+    return data.Item as Post;
+};
 
 export const getPostById = async (username: string, postId: string) => {
     return await getDdbItem<PostKey>(Resource.PostTable.name, {
@@ -97,25 +113,90 @@ export const likePost = async (
     postId: string,
     type: "like" | "dislike"
 ) => {
-    const { data, error } = await tryCatch(
-        getDdbItem<PostKey>(Resource.PostTable.name, { username, postId })
-    );
+    const { data: post, error } = await tryCatch(getPost(username, postId));
 
     if (error) {
-        throw new Error("Failed to get post.");
+        throw new Error(error.message);
     }
 
-    if (!data.Item) {
-        throw new Error("Post does not exist.");
-    }
-
-    const post = data.Item as Post;
     const likes = type === "like" ? post.likes + 1 : post.likes - 1;
 
     return await updateDdbItem<Post, PostKey>(
         Resource.PostTable.name,
         { username, postId },
         { likes }
+    );
+};
+
+export const commentPost = async (
+    username: string,
+    postId: string,
+    author: string,
+    content: string
+) => {
+    const { data: post, error } = await tryCatch(getPost(username, postId));
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    const comment: Comment = {
+        id: post.comments.length + 1,
+        author,
+        content,
+    };
+
+    const comments: Comment[] = [...post.comments, comment];
+
+    return await updateDdbItem<Post, PostKey>(
+        Resource.PostTable.name,
+        { username, postId },
+        { comments }
+    );
+};
+
+export const replyToComment = async (
+    username: string,
+    postId: string,
+    author: string,
+    commentId: number,
+    content: string
+) => {
+    const { data: post, error } = await tryCatch(getPost(username, postId));
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    const commentForReply = post.comments?.find(
+        (comment) => comment.id === commentId
+    );
+
+    if (!commentForReply) {
+        throw new Error("Comment does not exist.");
+    }
+
+    const reply: Reply = {
+        id: (commentForReply.replies?.length ?? 0) + 1,
+        author,
+        reply: content,
+    };
+    const replies = [...(commentForReply.replies ?? []), reply];
+
+    const newComments = post.comments.map((comment) => {
+        if (comment.id === commentId) {
+            return {
+                ...comment,
+                replies,
+            };
+        }
+        return comment;
+    });
+
+    return await updateDdbItem<Post, PostKey>(
+        Resource.PostTable.name,
+        { username, postId },
+        { comments: newComments }
     );
 };
 
