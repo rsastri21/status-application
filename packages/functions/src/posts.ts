@@ -5,6 +5,7 @@ import { jsonValidator } from "../utils/json-validator";
 import {
     captionPost,
     createEmptyPost,
+    deletePost,
     getPostsForUserWithinRange,
 } from "@status-application/core/queries/posts";
 import { generatePostPresignedUrls } from "../utils/presigned-url";
@@ -114,6 +115,18 @@ app.post("/api/posts/caption", jsonValidator(captionSchema), async (c) => {
         { message: "Post captioned successfully.", post: data.Attributes },
         200
     );
+});
+
+app.delete("/api/posts/delete/:postId", async (c) => {
+    const postId = c.req.param("postId");
+    const username = c.req.header("user")!;
+
+    const { error } = await tryCatch(deletePost(username, postId));
+
+    if (error) {
+        return c.json({ message: "Could not delete post.", error }, 400);
+    }
+    return c.json({ message: "Post deleted." }, 200);
 });
 
 export const handler = handle(app);

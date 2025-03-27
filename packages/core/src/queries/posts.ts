@@ -8,6 +8,7 @@ import { Image, Post } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
 import { deleteDdbItem, updateDdbItem } from "../utils/ddb-utils";
+import { deleteObject } from "../utils/s3-utils";
 
 type PostKey = { username: string; postId: string };
 
@@ -99,11 +100,15 @@ export const captionPost = async (
 };
 
 export const deletePost = async (username: string, postId: string) => {
-    /**
-     * TODO: Cleanup s3 images as well
-     */
-    return await deleteDdbItem<PostKey>(Resource.PostTable.name, {
+    await deleteDdbItem<PostKey>(Resource.PostTable.name, {
         username,
         postId,
     });
+
+    const keyPrefix = `images/${username}/posts/${postId}/`;
+    await Promise.all(
+        ["primary", "secondary"].map((type: string) =>
+            deleteObject(Resource.Images.name, keyPrefix + type)
+        )
+    );
 };
