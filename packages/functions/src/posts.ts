@@ -7,6 +7,7 @@ import {
     createEmptyPost,
     deletePost,
     getPostsForUserWithinRange,
+    likePost,
 } from "@status-application/core/queries/posts";
 import { generatePostPresignedUrls } from "../utils/presigned-url";
 import { getMidnightEpoch } from "../utils/get-midnight-date";
@@ -23,10 +24,16 @@ const captionSchema = z.object({
     caption: z.string(),
 });
 
+const likeSchema = z.object({
+    username: z.string(),
+    postId: z.string(),
+    type: z.enum(["like", "dislike"]),
+});
+
 const app = new Hono();
 
 app.post("/api/posts/new", jsonValidator(postSchema), async (c) => {
-    const params = c.req.valid("json");
+    const params = c.req.valid("json") as z.infer<typeof postSchema>;
     const username = c.req.header("user")!;
 
     /**
@@ -97,7 +104,7 @@ app.post("/api/posts/new", jsonValidator(postSchema), async (c) => {
 });
 
 app.post("/api/posts/caption", jsonValidator(captionSchema), async (c) => {
-    const params = c.req.valid("json");
+    const params = c.req.valid("json") as z.infer<typeof captionSchema>;
     const username = c.req.header("user")!;
 
     const { data, error } = await tryCatch(
@@ -113,6 +120,22 @@ app.post("/api/posts/caption", jsonValidator(captionSchema), async (c) => {
     }
     return c.json(
         { message: "Post captioned successfully.", post: data.Attributes },
+        200
+    );
+});
+
+app.post("/api/posts/like", jsonValidator(likeSchema), async (c) => {
+    const { username, postId, type } = c.req.valid("json") as z.infer<
+        typeof likeSchema
+    >;
+
+    const { data, error } = await tryCatch(likePost(username, postId, type));
+
+    if (error) {
+        return c.json({ message: "Failed to like post.", error }, 400);
+    }
+    return c.json(
+        { message: "Successfully like post.", post: data.Attributes },
         200
     );
 });

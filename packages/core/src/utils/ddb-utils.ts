@@ -1,11 +1,27 @@
 import {
     DeleteCommand,
     DeleteCommandInput,
+    GetCommand,
     UpdateCommand,
     UpdateCommandInput,
     UpdateCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDbProvider } from "./dynamo-client";
+
+export const getDdbItem = async <K extends Record<string, any>>(
+    tableName: string,
+    key: K
+) => {
+    const client = DynamoDbProvider.getInstance();
+
+    const command = new GetCommand({
+        TableName: tableName,
+        Key: key,
+    });
+
+    const response = await client.send(command);
+    return response;
+};
 
 export const updateDdbItem = async <T, K extends Record<string, any>>(
     tableName: string,

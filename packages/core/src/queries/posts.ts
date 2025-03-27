@@ -7,24 +7,17 @@ import {
 import { Image, Post } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
-import { deleteDdbItem, updateDdbItem } from "../utils/ddb-utils";
+import { deleteDdbItem, getDdbItem, updateDdbItem } from "../utils/ddb-utils";
 import { deleteObject } from "../utils/s3-utils";
+import { tryCatch } from "../utils/try-catch";
 
 type PostKey = { username: string; postId: string };
 
 export const getPostById = async (username: string, postId: string) => {
-    const client = DynamoDbProvider.getInstance();
-
-    const command = new GetCommand({
-        TableName: Resource.PostTable.name,
-        Key: {
-            username,
-            postId,
-        },
+    return await getDdbItem<PostKey>(Resource.PostTable.name, {
+        username,
+        postId,
     });
-
-    const response = await client.send(command);
-    return response;
 };
 
 export const getPostsForUserWithinRange = async (
@@ -96,6 +89,33 @@ export const captionPost = async (
         Resource.PostTable.name,
         { username, postId },
         { caption }
+    );
+};
+
+export const likePost = async (
+    username: string,
+    postId: string,
+    type: "like" | "dislike"
+) => {
+    const { data, error } = await tryCatch(
+        getDdbItem<PostKey>(Resource.PostTable.name, { username, postId })
+    );
+
+    if (error) {
+        throw new Error("Failed to get post.");
+    }
+
+    if (!data.Item) {
+        throw new Error("Post does not exist.");
+    }
+
+    const post = data.Item as Post;
+    const likes = type === "like" ? post.likes + 1 : post.likes - 1;
+
+    return await updateDdbItem<Post, PostKey>(
+        Resource.PostTable.name,
+        { username, postId },
+        { likes }
     );
 };
 

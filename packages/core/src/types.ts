@@ -22,11 +22,13 @@ export type User = {
 export type UserUpdate = Partial<User> & Pick<Required<User>, "username">;
 
 export type Reply = {
+    id: number;
     author: string;
     reply: string;
 };
 
 export type Comment = {
+    id: number;
     author: string;
     content: string;
     replies?: Reply[];
