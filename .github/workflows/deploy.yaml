@@ -1,0 +1,45 @@
+name: Production Deploy Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .sst
+          key: ${{ runner.os }}-sst
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      
+      - name: Install SST
+        run: "curl -fsSL https://ion.sst.dev/install | bash"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::575108949460:role/status-application-production-github
+          aws-region: us-east-1
+
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: SST deploy
+        run: |
+          sst install
+          sst deploy --stage=production
