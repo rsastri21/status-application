@@ -75,3 +75,16 @@ api.route(
         },
     }
 );
+
+api.route(
+    "GET /api/feed/{proxy+}",
+    {
+        link: [posts, relationships],
+        handler: "packages/functions/src/feed.handler",
+    },
+    {
+        auth: {
+            lambda: lambdaAuthorizer.id,
+        },
+    }
+);
