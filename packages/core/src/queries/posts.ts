@@ -4,7 +4,7 @@ import {
     QueryCommand,
     QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-import { Comment, Image, Post, Reply } from "../types";
+import { Comment, Image, Post, Reaction, Reply } from "../types";
 import { DynamoDbProvider } from "../utils/dynamo-client";
 import { Resource } from "sst";
 import { deleteDdbItem, getDdbItem, updateDdbItem } from "../utils/ddb-utils";
@@ -152,6 +152,32 @@ export const commentPost = async (
         Resource.PostTable.name,
         { username, postId },
         { comments }
+    );
+};
+
+export const reactToPost = async (
+    username: string,
+    postId: string,
+    author: string,
+    content: string
+) => {
+    const { data: post, error } = await tryCatch(getPost(username, postId));
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    const reaction: Reaction = {
+        emoji: content,
+        author,
+    };
+
+    const reactions: Reaction[] = [...post.reactions, reaction];
+
+    return await updateDdbItem<Post, PostKey>(
+        Resource.PostTable.name,
+        { username, postId },
+        { reactions }
     );
 };
 

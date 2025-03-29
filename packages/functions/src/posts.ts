@@ -9,6 +9,7 @@ import {
     deletePost,
     getPostsForUserWithinRange,
     likePost,
+    reactToPost,
     replyToComment,
 } from "@status-application/core/queries/posts";
 import { generatePostPresignedUrls } from "../utils/presigned-url";
@@ -36,6 +37,12 @@ const commentSchema = z.object({
     username: z.string(),
     postId: z.string(),
     content: z.string().max(140),
+});
+
+const reactSchema = z.object({
+    username: z.string(),
+    postId: z.string(),
+    content: z.string().max(2),
 });
 
 const replySchema = z.object({
@@ -170,6 +177,25 @@ app.post("/api/posts/comment", jsonValidator(commentSchema), async (c) => {
     }
     return c.json(
         { message: "Successfully commented on post.", post: data.Attributes },
+        200
+    );
+});
+
+app.post("/api/posts/react", jsonValidator(reactSchema), async (c) => {
+    const { username, postId, content } = c.req.valid("json") as z.infer<
+        typeof reactSchema
+    >;
+    const author = c.req.header("user")!;
+
+    const { data, error } = await tryCatch(
+        reactToPost(username, postId, author, content)
+    );
+
+    if (error) {
+        return c.json({ message: "Failed to react to post.", error }, 400);
+    }
+    return c.json(
+        { message: "Successfully reacted to post.", post: data.Attributes },
         200
     );
 });

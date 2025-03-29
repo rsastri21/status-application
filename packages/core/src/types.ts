@@ -4,7 +4,7 @@ export type Image = {
     height: number;
 };
 
-type Reaction = {
+export type Reaction = {
     emoji: string;
     author: string;
 };
